@@ -1,0 +1,138 @@
+name: ${APP_NAME}
+
+services:
+  database:
+    restart: always
+    image: postgres:18.4-alpine
+    ports:
+      - 5432:5432
+    networks:
+      - isolated
+    volumes:
+      - psql-data:/var/lib/postgresql
+      - ./migration.sql://docker-entrypoint-initdb.d/migration.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
+    environment:
+      - POSTGRES_DB_FILE=/run/secrets/postgres-db
+      - POSTGRES_USER_FILE=/run/secrets/postgres-user
+      - POSTGRES_PASSWORD_FILE=/run/secrets/postgres-passwd
+    secrets:
+      - postgres-db
+      - postgres-user
+      - postgres-passwd
+
+  # database-manager:
+  #   restart: always
+  #   image: dpage/pgadmin4:9.15.0
+  #   ports:
+  #     - 4444:80
+  #   networks:
+  #     - isolated
+  #   volumes:
+  #     - database-manager-data:/var/lib/pgadmin
+  #   environment:
+  #     - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+  #     - PGADMIN_DEFAULT_PASSWORD_FILE=/run/secrets/pgadmin-passwd
+  #   secrets:
+  #     - pgadmin-passwd
+  #   healthcheck:
+  #     test: ["CMD", "wget", "-O", "-", "http://127.0.0.1:80/misc/ping"]
+  #     interval: 10s
+  #     timeout: 10s
+  #     start_period: 30s
+  #     retries: 3
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+
+  reverse-proxy:
+    restart: always
+    image: nginx:stable-alpine-perl
+    ports:
+      - 8080:443
+    networks:
+      - isolated
+      - shared
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/:/etc/nginx/certs/:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fkS", "https://127.0.0.1:443"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      web:
+        condition: service_healthy
+      server:
+        condition: service_started
+
+  server:
+    container_name: opsfield-server-1
+    restart: always
+    image: ${APP_NAME}/spring:1.3
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: spring
+    networks:
+      - isolated
+    healthcheck:
+      test: ["CMD", "curl", "-fS", "http://127.0.0.1:3000/api/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      database:
+        condition: service_healthy
+
+
+  web:
+    container_name: opsfield-web-1
+    restart: always
+    image: ${APP_NAME}/angular:1.4
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      target: angular
+    networks:
+      - isolated
+    healthcheck:
+      test: ["CMD", "node", "-e" ,"fetch('http://127.0.0.1:4000').then(r=>console.log(r.status))"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      database:
+        condition: service_healthy
+
+networks:
+  isolated:
+    internal: true
+    driver: bridge
+  shared:
+    driver: bridge
+
+volumes:
+  psql-data:
+  # database-manager-data:
+
+secrets:
+  postgres-db:
+    file: postgres-db
+  postgres-user:
+    file: postgres-user
+  postgres-passwd:
+    file: postgres-passwd
+  pgadmin-mail:
+    file: pgadmin-mail
+  pgadmin-passwd:
+    file: pgadmin-passwd
