@@ -1,0 +1,48 @@
+{
+  "name": "web",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "vitest --no-watch --config vitest.config.ts --reporter verbose",
+    "serve:ssr:web": "node dist/web/server/server.mjs"
+  },
+  "prettier": {
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "dependencies": {
+    "@analogjs/vite-plugin-angular": "^2.6.2",
+    "@angular/common": "^20.1.0",
+    "@angular/compiler": "^20.1.0",
+    "@angular/core": "^20.1.0",
+    "@angular/forms": "^20.1.0",
+    "@angular/platform-browser": "^20.1.0",
+    "@angular/platform-server": "^20.1.0",
+    "@angular/router": "^20.1.0",
+    "@angular/ssr": "^20.1.3",
+    "express": "^5.1.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^20.1.3",
+    "@angular/cli": "^20.1.3",
+    "@angular/compiler-cli": "^20.1.0",
+    "@types/express": "^5.0.1",
+    "@types/jasmine": "~5.1.0",
+    "@types/node": "^20.17.19",
+    "jsdom": "^27.0.1",
+    "typescript": "~5.8.2",
+    "vitest": "^3.2.6"
+  }
+}
