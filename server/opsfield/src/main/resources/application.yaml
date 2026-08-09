@@ -9,8 +9,8 @@ spring:
   datasource:
     #dev
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/opsfield_db}
-    username: ${POSTGRES_USER:nagato}
-    password: ${POSTGRES_PASSWORD:hope}
+    username: ${POSTGRES_USER:nmyuser}
+    password: ${POSTGRES_PASSWORD:mypassword}
     # prod
     # url: ${SPRING_DATASOURCE_URL}
     # username: ${POSTGRES_USER}

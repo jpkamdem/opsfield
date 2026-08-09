@@ -17,7 +17,7 @@ create table if not exists users (
   email varchar(255) unique not null,
   password varchar(255) not null,
   age integer not null,
-  role role not null,
+  role role not null default 'worker',
   status status not null default 'available',
   phone_number varchar(10) unique not null,
   team_id uuid,

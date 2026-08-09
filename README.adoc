@@ -1,0 +1,47 @@
+= Opsfield
+
+=== Application de gestion d'intervenants
+
+=== Prérequis
+
+- Crée à la racine du projet ce `.env` :
+[,env]
+----
+APP_NAME=myapp
+POSTGRES_DB=${APP_NAME}_db
+POSTGRES_USER=myuser
+POSTGRES_PASSWORD=mypassword
+DB_HOST=database
+DB_PORT=5432
+PGADMIN_DEFAULT_EMAIL=example@gmail.com
+PGADMIN_DEFAULT_PASSWORD=${POSTGRES_PASSWORD}
+SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
+----
+
+- Modifie le application.yaml comme ça :
+[,yaml]
+----
+# https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server
+
+server:
+  port: 3000
+
+spring:
+  application:
+    name: myapp
+  datasource:
+    #dev
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/myapp_db} # ou database si lancé ou non via un conteneur
+    username: ${POSTGRES_USER:nmyuser}
+    password: ${POSTGRES_PASSWORD:mypassword}
+    # prod
+    # url: ${SPRING_DATASOURCE_URL}
+    # username: ${POSTGRES_USER}
+    # password: ${POSTGRES_PASSWORD}
+  jpa:
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+----
