@@ -1,3 +1,5 @@
+# https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server
+
 server:
   port: 3000
 
@@ -6,9 +8,8 @@ spring:
     name: opsfield
   datasource:
     url: jdbc:postgresql://database:5432/opsfield_db
-    username: myuser
-    password: mypasswd
-
+    username: nagato
+    password: hope
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect

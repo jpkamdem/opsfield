@@ -4,26 +4,22 @@ RUN apt update
 RUN apt install -y curl wget fontconfig
 RUN rm -rf /var/lib/apt/lists/*
 
-# All deps stage
 FROM base AS web-deps
 WORKDIR /app
 COPY web/package*.json ./
 RUN npm ci
 
-# Production only deps stage
 FROM base AS web-production-deps
 WORKDIR /app
 COPY web/package*.json ./
 RUN npm ci --omit=dev
 
-# Build stage
 FROM base AS web-build
 WORKDIR /app
 COPY --from=web-deps /app/node_modules/ ./node_modules/
 COPY web/ ./
 RUN npm run build
 
-# Production stage
 FROM base AS angular
 WORKDIR /app
 COPY --from=web-production-deps /app/node_modules/ ./

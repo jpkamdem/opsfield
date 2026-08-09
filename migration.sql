@@ -8,7 +8,7 @@ drop type if exists forme;
 drop type if exists role;
 
 create type role as enum ('admin', 'manager', 'worker');
-create type forme as enum ('opérationnel(le)', 'en activité', 'en repos', 'inapte');
+create type status as enum ('opérationnel(le)', 'en activité', 'en repos', 'inapte');
 
 create table if not exists users (
   id uuid primary key unique not null default uuid_generate_v4(),
@@ -18,7 +18,7 @@ create table if not exists users (
   password varchar(255) not null,
   age integer not null,
   role role not null,
-  forme forme not null default 'opérationnel(le)',
+  status status not null default 'opérationnel(le)',
   phone_number varchar(10) unique not null,
   team_id uuid,
   created_at timestamptz not null default now(),
