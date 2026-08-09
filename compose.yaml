@@ -36,11 +36,15 @@ services:
     restart: always
     image: ${APP_NAME}/spring:1.0
     ports:
-      - 3001:3000
+      - 3000:3000
     build:
       context: ./
       dockerfile: Dockerfile
       target: spring
+    environment:
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     networks:
       - isolated
     depends_on:
