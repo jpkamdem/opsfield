@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.konnro.opsfield.errors.UserNotFoundException;
+
 @Service
 public class UserService {
   private final UserRepository repository;
@@ -23,7 +25,7 @@ public class UserService {
   }
 
   public User show(UUID id) throws NoSuchElementException {
-    User user = repository.findById(id).orElseThrow();
+    User user = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     return user;
   }
 
@@ -42,7 +44,7 @@ public class UserService {
   }
 
   public void update(User user, UUID id) throws NoSuchElementException {
-    User foundUser = repository.findById(id).orElseThrow();
+    User foundUser = repository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     foundUser.setFirstname(user.getFirstname());
     foundUser.setLastname(user.getLastname());
     foundUser.setEmail(user.getEmail());
