@@ -5,6 +5,7 @@
 === Prérequis
 
 - Crée à la racine du projet ce `.env` :
+
 [,env]
 ----
 APP_NAME=myapp
@@ -19,6 +20,7 @@ SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
 ----
 
 - Modifie le application.yaml comme ça :
+
 [,yaml]
 ----
 # https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server
