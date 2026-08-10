@@ -1,20 +1,21 @@
 # https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server
 
+app:
+  secret: ${APP_SECRET:5E+qfLII5nfcuFaTLI2xlTedsuUySpqQMcC6oqZSJbU=}
+  duration: 5259492 # 2 months
+
 server:
   port: 3000
 
 spring:
   application:
-    name: opsfield
+    name: ${APP_NAME:opsfield}
   datasource:
     #dev
     url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://127.0.0.1:5432/opsfield_db}
     username: ${POSTGRES_USER:nagato}
     password: ${POSTGRES_PASSWORD:hope}
-    # prod
-    # url: ${SPRING_DATASOURCE_URL}
-    # username: ${POSTGRES_USER}
-    # password: ${POSTGRES_PASSWORD}
+
   jpa:
     show-sql: true
     database-platform: org.hibernate.dialect.PostgreSQLDialect

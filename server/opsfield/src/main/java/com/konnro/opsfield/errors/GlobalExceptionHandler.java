@@ -12,4 +12,9 @@ public class GlobalExceptionHandler {
   public ResponseEntity<?> handleUserNotFound(UserNotFoundException ex) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
   }
+
+  @ExceptionHandler(CustomJwtException.class)
+  public ResponseEntity<?> handleCustomJwtException(CustomJwtException ex) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(ex.getMessage());
+  }
 }

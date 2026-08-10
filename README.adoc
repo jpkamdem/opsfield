@@ -9,6 +9,7 @@
 [,env]
 ----
 APP_NAME=myapp
+APP_SECRET=mysecret
 POSTGRES_DB=${APP_NAME}_db
 POSTGRES_USER=myuser
 POSTGRES_PASSWORD=mypassword
@@ -24,6 +25,9 @@ SPRING_DATASOURCE_URL=jdbc:postgresql://${DB_HOST}:${DB_PORT}/${POSTGRES_DB}
 [,yaml]
 ----
 # https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server
+
+app:
+  secret: ${APP_SECRET:mysecret} # openssl rand -base64 32
 
 server:
   port: 3000
@@ -45,5 +49,5 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
 ----
