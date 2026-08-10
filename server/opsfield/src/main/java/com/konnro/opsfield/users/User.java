@@ -76,20 +76,20 @@ public class User {
   @Setter
   @Pattern(regexp = "0[6|7][0-9]{8}")
   @Column(nullable = false, unique = true)
-  private String phone_number;
+  private String phoneNumber;
 
   @Getter
   @Setter
-  @JoinColumn
-  private UUID team_id;
+  @JoinColumn(name = "team_id")
+  private UUID teamId;
 
   @CreationTimestamp
   @Getter
-  @Column(nullable = false, updatable = false)
-  private Timestamp created_at;
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private Timestamp createdAt;
 
   @UpdateTimestamp
   @Getter
-  @Column(nullable = false)
-  private Timestamp updated_at;
+  @Column(name = "updated_at", nullable = false)
+  private Timestamp updatedAt;
 }

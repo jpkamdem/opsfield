@@ -2,6 +2,7 @@ package com.konnro.opsfield.users;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,16 @@ public class UserService {
     return user;
   }
 
+  public Optional<User> showEmail(String email) {
+    Optional<User> user = repository.findByEmail(email);
+    return user;
+  }
+
+  public Optional<User> showPhone_Number(String phoneNumber) {
+    Optional<User> user = repository.findByPhoneNumber(phoneNumber);
+    return user;
+  }
+
   public void store(User newUser) throws IllegalArgumentException {
     User user = new User();
     user.setFirstname(newUser.getFirstname());
@@ -36,8 +47,8 @@ public class UserService {
     user.setEmail(newUser.getEmail());
     user.setPassword(passwordEncoder.encode(newUser.getPassword()));
     user.setAge(newUser.getAge());
-    user.setPhone_number(newUser.getPhone_number());
-    user.setTeam_id(newUser.getTeam_id());
+    user.setPhoneNumber(newUser.getPhoneNumber());
+    user.setTeamId(newUser.getTeamId());
     user.setRole(newUser.getRole());
     user.setStatus(newUser.getStatus());
     repository.save(user);
@@ -50,8 +61,8 @@ public class UserService {
     foundUser.setEmail(user.getEmail());
     foundUser.setPassword(passwordEncoder.encode(user.getPassword()));
     foundUser.setAge(user.getAge());
-    foundUser.setPhone_number(user.getPhone_number());
-    foundUser.setTeam_id(user.getTeam_id());
+    foundUser.setPhoneNumber(user.getPhoneNumber());
+    foundUser.setTeamId(user.getTeamId());
     foundUser.setRole(user.getRole());
     foundUser.setStatus(user.getStatus());
     repository.save(foundUser);
