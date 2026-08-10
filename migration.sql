@@ -3,9 +3,8 @@ create extension if not exists "uuid-ossp";
 
 drop table if exists users;
 drop table if exists teams;
-drop table if exists messages;
-drop type if exists status;
-drop type if exists role;
+drop type if exists role cascade;
+drop type if exists status cascade;
 
 create type role as enum ('admin', 'manager', 'worker');
 create type status as enum ('available', 'working', 'resting', 'unavailable');
@@ -17,10 +16,10 @@ create table if not exists users (
   email varchar(255) unique not null,
   password varchar(255) not null,
   age integer not null,
-  role role not null default 'worker',
-  status status not null default 'available',
   phone_number varchar(10) unique not null,
   team_id uuid,
+  role role not null default 'worker',
+  status status not null default 'available',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

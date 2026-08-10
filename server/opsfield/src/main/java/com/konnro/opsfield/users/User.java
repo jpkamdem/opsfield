@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
@@ -13,6 +14,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
@@ -47,7 +49,7 @@ public class User {
 
   @Getter
   @Setter
-  @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=[^a-zA-Z0-9_]).{12,}$", message = "Password must contains 1 lower & upper case letter, 1 special char and at least 12 characters")
+  @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^a-zA-Z0-9]).{12,}$", message = "Password must contains 1 lower & upper case letter, 1 digit, 1 special char and at least 12 characters")
   @Column(nullable = false)
   private String password;
 
@@ -61,14 +63,14 @@ public class User {
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(nullable = false)
-  private Role role;
+  private Role role = Role.worker;
 
   @Getter
   @Setter
   @Enumerated(EnumType.STRING)
   @JdbcTypeCode(SqlTypes.NAMED_ENUM)
   @Column(nullable = false)
-  private Status status;
+  private Status status = Status.available;
 
   @Getter
   @Setter
@@ -78,17 +80,16 @@ public class User {
 
   @Getter
   @Setter
-  @Column
+  @JoinColumn
   private UUID team_id;
 
   @CreationTimestamp
   @Getter
-  @Column(nullable = false)
+  @Column(nullable = false, updatable = false)
   private Timestamp created_at;
 
-  @CreationTimestamp
+  @UpdateTimestamp
   @Getter
-  @Setter
   @Column(nullable = false)
   private Timestamp updated_at;
 }

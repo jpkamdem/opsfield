@@ -5,7 +5,9 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
+@Service
 public class UserService {
   private final UserRepository repository;
   private final PasswordEncoder passwordEncoder;
@@ -34,6 +36,9 @@ public class UserService {
     user.setAge(newUser.getAge());
     user.setPhone_number(newUser.getPhone_number());
     user.setTeam_id(newUser.getTeam_id());
+    user.setRole(newUser.getRole());
+    user.setStatus(newUser.getStatus());
+    repository.save(user);
   }
 
   public void update(User user, UUID id) throws NoSuchElementException {
@@ -45,9 +50,12 @@ public class UserService {
     foundUser.setAge(user.getAge());
     foundUser.setPhone_number(user.getPhone_number());
     foundUser.setTeam_id(user.getTeam_id());
+    foundUser.setRole(user.getRole());
+    foundUser.setStatus(user.getStatus());
+    repository.save(foundUser);
   }
 
-  public void delete (UUID id) {
+  public void delete(UUID id) {
     User user = this.show(id);
     repository.delete(user);
   }
