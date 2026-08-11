@@ -2,7 +2,6 @@ package com.konnro.opsfield.auth;
 
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.konnro.opsfield.users.User;
@@ -13,7 +12,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class AuthService {
   private final JwtService jwtService;
 
-  @Autowired
   public AuthService(JwtService jwtService) {
     this.jwtService = jwtService;
   }

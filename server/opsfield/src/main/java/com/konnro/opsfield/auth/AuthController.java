@@ -2,7 +2,6 @@ package com.konnro.opsfield.auth;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,7 +24,6 @@ public class AuthController {
   private final AuthService authService;
   private final PasswordEncoder passwordEncoder;
 
-  @Autowired
   public AuthController(UserService userService, AuthService authService, PasswordEncoder passwordEncoder) {
     this.userService = userService;
     this.passwordEncoder = passwordEncoder;
