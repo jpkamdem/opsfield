@@ -16,7 +16,7 @@ public class AuthService {
     this.jwtService = jwtService;
   }
 
-  public Integer getExpiration() {
+  public Long getExpiration() {
     return jwtService.getExpirationDate();
   }
 
