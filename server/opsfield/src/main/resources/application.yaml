@@ -1,8 +1,11 @@
 # https://docs.spring.io/spring-boot/appendix/application-properties/index.html#appendix.application-properties.server
+logging:
+  level:
+    org.springframework.security: DEBUG
 
 app:
   secret: ${APP_SECRET:5E+qfLII5nfcuFaTLI2xlTedsuUySpqQMcC6oqZSJbU=}
-  duration: 5259492 # 2 months
+  duration: 2592000000 # 1 month
 
 server:
   port: 3000

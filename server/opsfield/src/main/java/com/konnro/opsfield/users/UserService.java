@@ -40,7 +40,7 @@ public class UserService {
     return user;
   }
 
-  public void store(User newUser) throws IllegalArgumentException {
+  public User store(User newUser) throws IllegalArgumentException {
     User user = new User();
     user.setFirstname(newUser.getFirstname());
     user.setLastname(newUser.getLastname());
@@ -52,6 +52,7 @@ public class UserService {
     user.setRole(newUser.getRole());
     user.setStatus(newUser.getStatus());
     repository.save(user);
+    return user;
   }
 
   public void update(User user, UUID id) throws NoSuchElementException {

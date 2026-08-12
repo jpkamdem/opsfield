@@ -42,9 +42,10 @@ public class AuthController {
     if (phoneUser.isPresent()) {
       return new ResponseEntity<>("Ce numéro de téléphone est déjà utilisée", HttpStatus.BAD_REQUEST);
     }
-    userService.store(user);
-    authService.addJwtCookie(user, response);
-    return new ResponseEntity<>(HttpStatus.OK);
+
+    User newUser = userService.store(user);
+    authService.addJwtCookie(newUser, response);
+    return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
   @PostMapping("/login")

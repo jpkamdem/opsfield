@@ -31,7 +31,7 @@ public class JwtService {
 
   @Value("${app.duration}")
   @Getter
-  private Integer expirationDate;
+  private Long expirationDate;
 
   private SecretKey getSigningKey() {
     byte[] keyBytes = Decoders.BASE64.decode(baseKey);
@@ -41,7 +41,7 @@ public class JwtService {
   public String generate(UUID id) {
     return Jwts.builder()
         .subject(id.toString())
-        .issuedAt(new Date(System.currentTimeMillis() / 1000))
+        .issuedAt(new Date())
         .expiration(new Date(System.currentTimeMillis() + expirationDate))
         .signWith(getSigningKey())
         .compact();

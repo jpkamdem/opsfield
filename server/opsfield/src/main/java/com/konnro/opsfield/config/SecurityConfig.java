@@ -24,26 +24,18 @@ public class SecurityConfig {
         .authorizeHttpRequests(requests -> requests
 
             // health
-            .requestMatchers(HttpMethod.GET, "/health/ping")
-            .permitAll()
+            .requestMatchers(HttpMethod.GET, "/health/ping").permitAll()
 
             // users
-            .requestMatchers(HttpMethod.GET, "/api/users/")
-            .permitAll()
-            .requestMatchers(HttpMethod.GET, "/api/users/{id}")
-            .permitAll()
-            .requestMatchers(HttpMethod.PUT, "/api/users/{id}")
-            .permitAll()
-            .requestMatchers(HttpMethod.DELETE, "/api/users/{id}")
-            .permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/users/").permitAll()
+            .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+            .requestMatchers(HttpMethod.PUT, "/api/users/{id}").permitAll()
+            .requestMatchers(HttpMethod.DELETE, "/api/users/{id}").permitAll()
 
             // auth
-            .requestMatchers(HttpMethod.POST, "/api/auth/register")
-            .permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/login")
-            .permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/auth/logout")
-            .permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
 
             .anyRequest()
             .denyAll())
