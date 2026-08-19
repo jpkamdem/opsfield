@@ -9,13 +9,18 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.konnro.opsfield.middlewares.PermsFilter;
+import com.konnro.opsfield.middlewares.LoggedInFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  public SecurityFilterChain filterChain(HttpSecurity http, LoggedInFilter loggedInFilter, PermsFilter permsFilter)
+      throws Exception {
     return http
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .csrf(csrf -> csrf.disable())
@@ -39,6 +44,10 @@ public class SecurityConfig {
 
             .anyRequest()
             .denyAll())
+
+        .addFilterBefore(loggedInFilter, UsernamePasswordAuthenticationFilter.class)
+        .addFilterAfter(permsFilter, LoggedInFilter.class)
+
         .build();
   }
 
