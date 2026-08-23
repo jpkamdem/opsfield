@@ -34,8 +34,32 @@ public class MiddlewareService {
   public boolean isPathUnprotected(ServletRequest request) {
     HttpServletRequest HttpServletRequest = (HttpServletRequest) request;
     List<String> unprotectedPaths = getUnprotectedPaths();
-    String path = HttpServletRequest.getRequestURI();
-    return unprotectedPaths.contains(path);
+    String uri = HttpServletRequest.getRequestURI();
+    return unprotectedPaths.contains(uri);
+  }
+
+  public boolean isTeamPath(ServletRequest request) {
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    String uri = httpServletRequest.getRequestURI();
+    return uri.equals("/api/teams/") || uri.startsWith("/api/teams/");
+  }
+
+  public boolean isUserPath(ServletRequest request) {
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    String uri = httpServletRequest.getRequestURI();
+    return uri.equals("/api/users/") || uri.startsWith("/api/users/");
+  }
+
+  public boolean isWriteMethod(ServletRequest request) {
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    String method = httpServletRequest.getMethod();
+    return method.equals("POST") || method.equals("PUT") || method.equals("DELETE");
+  }
+
+  public boolean isReadMethod(ServletRequest request) {
+    HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+    String method = httpServletRequest.getMethod();
+    return method.equals("GET");
   }
 
   public Optional<UUID> uuidFromUri(ServletRequest request) {

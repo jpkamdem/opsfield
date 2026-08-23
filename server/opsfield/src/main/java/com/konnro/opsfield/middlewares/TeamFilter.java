@@ -5,7 +5,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.konnro.opsfield.auth.JwtService;
+import com.konnro.opsfield.errors.TeamNotFoundException;
 import com.konnro.opsfield.errors.UserNotFoundException;
+import com.konnro.opsfield.teams.Team;
+import com.konnro.opsfield.teams.TeamRepository;
 import com.konnro.opsfield.users.Role;
 import com.konnro.opsfield.users.User;
 import com.konnro.opsfield.users.UserRepository;
@@ -18,27 +21,33 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletResponse;
 
-public class PermsFilter implements Filter {
+public class TeamFilter implements Filter {
 
   private final MiddlewareService middlewareService;
   private final JwtService jwtService;
+  private final TeamRepository teamRepository;
   private final UserRepository userRepository;
 
-  public PermsFilter(UserRepository userRepository, JwtService jwtService, MiddlewareService middlewareService) {
-    this.userRepository = userRepository;
-    this.jwtService = jwtService;
+  public TeamFilter(MiddlewareService middlewareService, JwtService jwtService, TeamRepository teamRepository,
+      UserRepository userRepository) {
     this.middlewareService = middlewareService;
+    this.jwtService = jwtService;
+    this.teamRepository = teamRepository;
+    this.userRepository = userRepository;
   }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-
     if (middlewareService.isPathUnprotected(request)) {
       chain.doFilter(request, response);
       return;
     }
 
+    if (!middlewareService.isTeamPath(request)) {
+      chain.doFilter(request, response);
+      return;
+    }
 
     String token = jwtService.tokenValueFromHttp(request);
     Claims decodedToken = jwtService.extractClaims(token);
@@ -46,7 +55,6 @@ public class PermsFilter implements Filter {
       ((HttpServletResponse) response).sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
     }
-
 
     UUID jti = UUID.fromString(decodedToken.getSubject());
     User jtiUser = userRepository.findById(jti).orElseThrow(() -> new UserNotFoundException(jti));
@@ -56,11 +64,12 @@ public class PermsFilter implements Filter {
       return;
     }
 
-    Optional<UUID> pathId = middlewareService.uuidFromUri(request);
-    if (pathId.isEmpty()) {
-      boolean isWorker = jtiUser.getRole().equals(Role.worker);
-      if (isWorker) {
-        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+    boolean isTeamWriteRequest = middlewareService.isTeamPath(request) && middlewareService.isWriteMethod(request);
+    boolean isJtiUserManager = jtiUser.getRole().equals(Role.manager);
+
+    if (isTeamWriteRequest) {
+      if (!isJtiUserManager) {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN);
         return;
       }
 
@@ -68,39 +77,34 @@ public class PermsFilter implements Filter {
       return;
     }
 
-    UUID id = pathId.get();
-    if (!middlewareService.isUserPath(request)) {
-      ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
-      return;
-    }
+    if (middlewareService.isReadMethod(request)) {
+      Optional<UUID> maybePathId = middlewareService.uuidFromUri(request);
+      if (maybePathId.isEmpty()) {
+        if (!isJtiUserManager) {
+          ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN);
+          return;
+        }
 
-    User pathUser = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
-
-    boolean isJtiUserManager = jtiUser.getRole().equals(Role.manager);
-
-    if (isJtiUserManager) {
-      if (middlewareService.isTeamPath(request)) {
         chain.doFilter(request, response);
         return;
       }
 
-      boolean nonNullTeamIds = jtiUser.getTeamId() != null && pathUser.getTeamId() != null;
-      if ((nonNullTeamIds)) {
-        boolean areTeamIdsEqual = jtiUser.getTeamId().equals(pathUser.getTeamId());
-        if (areTeamIdsEqual) {
-          chain.doFilter(request, response);
-          return;
-        }
+      UUID pathId = maybePathId.get();
+      Team pathTeam = teamRepository.findById(pathId).orElseThrow(() -> new TeamNotFoundException(pathId));
+      boolean nonNullTeamId = jtiUser.getTeamId() != null;
+      if (!nonNullTeamId) {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN);
+        return;
       }
-    }
 
-    boolean areTokenUserPathUserEqual = pathUser.getId().equals(jtiUser.getId());
-    if (!areTokenUserPathUserEqual) {
-      ((HttpServletResponse) response).sendError(HttpServletResponse.SC_UNAUTHORIZED);
+      boolean workerOfPathTeam = jtiUser.getTeamId().equals(pathTeam.getId());
+      if (!workerOfPathTeam) {
+        ((HttpServletResponse) response).sendError(HttpServletResponse.SC_FORBIDDEN);
+        return;
+      }
+
+      chain.doFilter(request, response);
       return;
     }
-
-    chain.doFilter(request, response);
-    return;
   }
 }
