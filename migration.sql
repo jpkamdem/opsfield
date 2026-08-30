@@ -5,6 +5,8 @@ drop table if exists users;
 drop table if exists teams;
 drop type if exists role cascade;
 drop type if exists status cascade;
+drop index if exists users_role cascade;
+drop index if exists users_team_created_at cascade;
 
 create type role as enum ('admin', 'manager', 'worker');
 create type status as enum ('available', 'working', 'resting', 'unavailable');
