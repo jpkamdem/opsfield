@@ -29,4 +29,7 @@ create table if not exists teams (
   name varchar (255) unique not null
 );
 
+create index users_role on users (role);
+create index users_team_created_at on users (team_id, created_at asc);
+
 alter table if exists users add constraint users_team_id foreign key (team_id) references teams (id) on delete cascade on update cascade;
