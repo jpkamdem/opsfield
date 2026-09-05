@@ -7,13 +7,11 @@ while [ "$BUILDTOOL" != "p" ] && [ "$BUILDTOOL" != "d" ]; do
 done
 
 if [ "$BUILDTOOL" == "p" ]; then
-  podman compose up -d database-manager
-  podman compose ps
+  podman compose down
 fi
 
 if [ "$BUILDTOOL" == "d" ]; then
-  docker compose up -d database-manager
-  docker compose ps
+  docker compose down
 fi
 
 exit 1
