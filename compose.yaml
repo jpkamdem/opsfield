@@ -5,9 +5,18 @@ services:
     restart: always
     image: postgres:18.4-alpine
     ports:
-      - 5432:5432
+      - host_ip: 127.0.0.1
+        published: 5432
+        target: 5432
+        protocol: tcp
     networks:
       - isolated
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     volumes:
       - psql-data:/var/lib/postgresql
       - ./migration.sql://docker-entrypoint-initdb.d/migration.sql:ro
@@ -17,26 +26,63 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
   database-manager:
-    container_name: database-manager
+    container_name: ${APP_NAME}-database-manager
     image: dpage/pgadmin4:9.15.0
     ports:
-      - 4444:80
+      - host_ip: 127.0.0.1
+        published: 4444
+        target: 80
+        protocol: tcp
     networks:
       - isolated
+    healthcheck:
+      test: ["CMD", "wget", "-O", "-", "http://127.0.0.1:80/misc/ping"]
+      interval: 10s
+      timeout: 10s
+      start_period: 30s
+      retries: 3
     volumes:
       - db-manager_data:/var/lib/pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+
+  webserver:
+    container_name: ${APP_NAME}-webserver
+    restart: always
+    image: nginx:stable-trixie-perl
+    ports:
+      - host_ip: 127.0.0.1
+        published: 8080
+        target: 4000
+        protocol: tcp
+      - host_ip: 127.0.0.1
+        published: 3000
+        target: 3000
+        protocol: tcp
+    networks:
+      - isolated
+      - shared
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs/:/etc/certs/:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fkS", "https://127.0.0.1:443"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      web:
+        condition: service_healthy
 
   server:
     container_name: ${APP_NAME}-server
     restart: always
     image: ${APP_NAME}/spring:1.0
-    ports:
-      - 3000:3000
     build:
       context: ./
       dockerfile: Dockerfile
@@ -48,7 +94,8 @@ services:
     networks:
       - isolated
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
   web:
     container_name: ${APP_NAME}-web
@@ -60,12 +107,25 @@ services:
       target: angular
     networks:
       - isolated
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4000').then(r=>console.log(r.status))",
+        ]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
     depends_on:
-      - database
+      database:
+        condition: service_healthy
 
 networks:
   isolated:
-    internal: true
+    # internal: true
     driver: bridge
   shared:
     driver: bridge
